@@ -1,0 +1,19 @@
+# Build directories
+build/
+.cmake/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.user
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# Python & Data (for future work)
+__pycache__/
+*.pyc
+data/*.csv
+data/*.db
