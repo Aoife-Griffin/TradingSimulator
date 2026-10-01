@@ -45,6 +45,18 @@ Every order must pass these four filters:
 
 # Phase 2: Order Book & Matching Engine
 
+## 1. Core Engine Design Principles
+*   **Contiguous Memory**: Bids and Asks are stored in arrays pre-allocated to 1,000 slots to avoid slow memory reallocations during live trading.
+*   **Price-Time Priority**: 
+    *   **Price**: Uses fast binary search (`std::lower_bound`) to keep the best prices right at index 0.
+    *   **Time**: Appends new orders to the back of their price group to guarantee a strict first-come, first-served queue.
+
+## 2. How the Engine Works
+1.  **Order Book Operations**: Manages incoming orders by adding, cancelling, or modifying resting limit queues (`addOrder`, `cancelOrder`, `modifyOrder`).
+2.  **Matching Engine Processing**:  Scans the book to instantly fill incoming volumes against resting queues, handling partial fills and market order sweeps.
+3.  **Trade Issuance**: Generates permanent, unique trade execution ticks the millisecond a match occurs.
+
+
 # Phase 3: Portfolio, Risk & Market Simulation
 
 # Phase 4: Concurrecy & Performance Engineering

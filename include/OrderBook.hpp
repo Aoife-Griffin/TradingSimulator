@@ -1,13 +1,15 @@
 #pragma once
 #include "Order.hpp"
 #include <vector>
+#include <optional>
+#include <algorithm>
 
 namespace Trading {
 
     /// A price level for all orders at the price
     struct PriceLevel {
-        Price price;
-        Qty totalVolume;
+        Price price{0.0};
+        Qty totalVolume{0};
         std::vector<Order> orders; /// REPLACE LATER WITH CUSTOM POOL ALLOCATOR (heap collisions)
     };
 
@@ -19,13 +21,28 @@ namespace Trading {
         std::vector<PriceLevel> m_bids; 
         std::vector<PriceLevel> m_asks; 
 
+        /// Helper to find or insert a price level
+        std::vector<PriceLevel>::iterator findOrInsertLevel(std::vector<PriceLevel>& levels, Price price, bool descending);
+
+
+
     public:
-        explicit OrderBook(SecurityId securityId) : m_securityId(securityId) {
+        explicit OrderBook(SecurityId securityId); : m_securityId(securityId) {
             m_bids.reserve(1000); 
             m_asks.reserve(1000);
         }
 
-        void insert(const Order& order);
-        void cancel(OrderId id);
+        /// Core API Features
+        void addOrder(const Order& order);
+        void cancelOrder(OrderId id, Side side);
+        void modifyOrder(OrderId id, Side side, Qty newQty, Price newPrice);
+
+        /// Accessors for best bid and ask
+        std::optional<Order> getBestBid() const;
+        std::optional<Order> getBestAsk() const;
+
+        /// Accessors for the order book
+        std::vector<PriceLevel>& getBids() { return m_bids; }
+        std::vector<PriceLevel>& getAsks() { return m_asks; }
     };
 }

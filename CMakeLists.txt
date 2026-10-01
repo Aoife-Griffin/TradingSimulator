@@ -16,6 +16,7 @@ endif()
 ### Define core trading engine library
 add_library(trading_engine 
     src/Engine.cpp
+    src/OrderBook.cpp
 )
 
 target_include_directories(trading_engine PUBLIC 
