@@ -3,10 +3,11 @@
 namespace Trading {
 
     /// Orderbook Constructor
-    OrderBook::OrderBook(SecurityId securityId) : m_securityId(securityId) {
-        m_bids.reserve(256); // Pre-allocate memory lines to shield against heap thrashing
-        m_asks.reserve(256);
+     OrderBook::OrderBook(SecurityId securityId) : m_securityId(securityId) {
+        m_bids.reserve(1000); // Shifted pre-allocations safely inside the out-of-line constructor definition
+        m_asks.reserve(1000);
     }
+
 
     /// Find or insert a price level for the book
     std::vector<PriceLevel>::iterator OrderBook::findOrInsertLevel(std::vector<PriceLevel>& levels, Price price, bool descending) {

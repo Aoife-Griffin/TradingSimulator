@@ -59,4 +59,16 @@ Every order must pass these four filters:
 
 # Phase 3: Portfolio, Risk & Market Simulation
 
+## 1. Core Principals
+* **Stateful Account Accounting**: Positions and live cash values are updated dynamically on a ledger whenever a match executes.
+* **Complex Multi-Bound Risk Guarding**: Incoming commands are filtered by the `RiskManager` against maximum size bounds, capital exposure caps, and net position velocity counts.
+* **Deterministic Environment Replays**: Sequential historical transaction files read  identical portfolio states due to a chronological clock tree.
+
+### 2. Live Simulator Controls
+The system replicates realistic structural market dynamics:
+1. **Normal & Trend Scenarios**: Models geometric Brownian random price walks with drift trends (Bull/Bear biases).
+2. **Volatility Shocks & Flash Crashes**: Applies Poisson volume spikes to strip market depth layers and have protective risk rejections.
+
+
+
 # Phase 4: Concurrecy & Performance Engineering

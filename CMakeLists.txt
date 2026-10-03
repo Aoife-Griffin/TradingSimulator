@@ -1,42 +1,34 @@
-cmake_minimum_required(VERSION 3.24)
-project(TradingSimulator VERSION 1.0.0 LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.14)
+project(TradingSimulator LANGUAGES CXX)
 
-### Force C++20 standard
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
 
-### Compiler warnings 
-if(MSVC)
-    add_compile_options(/W4)
-else()
-    add_compile_options(-Wall -Wextra -Wpedantic -O3)
-endif()
+# 1. Include the source directories for your application logic
+include_directories(include)
 
-### Define core trading engine library
-add_library(trading_engine 
-    src/Engine.cpp
-    src/OrderBook.cpp
-)
-
-target_include_directories(trading_engine PUBLIC 
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-)
-
-### Define main executable
+# 2. Add your main core application targets
+add_library(trading_engine src/Engine.cpp src/OrderBook.cpp)
 add_executable(trading_sim src/main.cpp)
 target_link_libraries(trading_sim PRIVATE trading_engine)
 
-### Test setup
-enable_testing()
+# 3. CONFIGURE GOOGLETEST 
+# Prevent overriding the parent project's compiler/linker settings on Windows
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
-### Using thirdparty folder instead of downloading off internet
+# Add the googletest subdirectory so CMake compiles it
 add_subdirectory(thirdparty/googletest/googletest-1.14.0)
 
-### Define test executable
+# 4. Configure and Link the Test Executable
+enable_testing()
 add_executable(engine_tests tests/test_main.cpp)
-target_link_libraries(engine_tests PRIVATE trading_engine gtest_main)
 
-### Run tests
+# Link against the raw gtest target (bypassing gtest_main)
+target_link_libraries(engine_tests PRIVATE 
+    trading_engine 
+    gtest
+)
+
+# Enable testing framework discovery
 include(GoogleTest)
-gtest_discover_tests(engine_tests)
+gtest_discover_tests(engine_tests DISCOVERY_MODE PRE_TEST)

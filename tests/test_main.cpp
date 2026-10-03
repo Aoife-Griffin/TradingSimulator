@@ -2,16 +2,19 @@
 #include "Types.hpp"
 #include "Order.hpp"
 #include "RiskManager.hpp"
+#include "MarketSimulator.hpp"
+#include "ReplayEngine.hpp"
+#include "OrderBook.hpp"
 
 /// Test for making sure the order validation is working
 TEST(OrderValidationTest, VerifiesExampleOrder) {
     Trading::Order order{
         .id = 1001,
         .timestamp = 1711843200000000000ULL,
-        .price = 50.25, // €50.25
-        .quantity = 100, // 100 shares
-        .side = Trading::Side::BUY, // BUY
-        .type = Trading::OrderType::LIMIT // LIMIT
+        .price = 50.25,
+        .quantity = 100, 
+        .side = Trading::Side::BUY, 
+        .type = Trading::OrderType::LIMIT
     };
 
     Trading::RiskManager risk;
@@ -70,8 +73,8 @@ TEST(OrderValidationTest, EnforcesUniqueOrderIDs) {
     Trading::Order uniqueOrder{.id = 1000, .timestamp = 3, .price = 12.0, .quantity = 5, .side = Trading::Side::BUY, .type = Trading::OrderType::LIMIT};
 
     EXPECT_TRUE(risk.validateOrder(firstOrder)); 
-    EXPECT_FALSE(risk.validateOrder(duplicateOrder)); // REJECTED: ID 999 already processed
-    EXPECT_TRUE(risk.validateOrder(uniqueOrder));     // PASSED: ID 1000 is brand new
+    EXPECT_FALSE(risk.validateOrder(duplicateOrder)); /// REJECTED: ID 999 already processed
+    EXPECT_TRUE(risk.validateOrder(uniqueOrder));     /// PASSED: ID 1000 is brand new
 }
 
 /// Checks that trades have the correct primitives and are valid
@@ -86,4 +89,41 @@ TEST(TradeValidationTest, ValidatesTradePrimitives) {
     };
 
     EXPECT_TRUE(trade.isValid());
+}
+
+/// Tests for making sure market scenarios matches request constraints
+TEST(SimulationPhaseTest, VerifiesScenarioGeneration) {
+    Trading::MarketSimulator simulator;
+    auto normalFeed = simulator.generateScenarioData(Trading::MarketScenario::NORMAL, 1, 50);
+    
+    EXPECT_EQ(normalFeed.size(), 50);
+    EXPECT_EQ(normalFeed.front().securityId, 1);
+    EXPECT_GT(normalFeed.front().price, 0.0);
+}
+
+/// Verifies that replaying a scenario produces identical order book states
+TEST(SimulationPhaseTest, EnforcesDeterministicReplays) {
+    Trading::MarketSimulator simulator;
+    Trading::OrderBook book1(1);
+    Trading::OrderBook book2(1);
+    Trading::RiskManager risk1;
+    Trading::RiskManager risk2;
+    Trading::ReplayEngine replay;
+
+    /// Create a array for a flash case scenario
+    auto crashFeed = simulator.generateScenarioData(Trading::MarketScenario::FLASH_CRASH, 1, 100);
+
+    /// Feed identical arrays into completely independent processing lines
+    replay.executeReplay(book1, risk1, crashFeed);
+    replay.executeReplay(book2, risk2, crashFeed);
+
+    /// Check both matching books arrived at identical depth metrics
+    EXPECT_EQ(book1.getBestBid(), book2.getBestBid());
+    EXPECT_EQ(book1.getBestAsk(), book2.getBestAsk());
+}
+
+/// Custom main() entry  to force compilation on MSVC
+int main(int argc, char **argv) {
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }
