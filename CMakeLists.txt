@@ -32,3 +32,7 @@ target_link_libraries(engine_tests PRIVATE
 # Enable testing framework discovery
 include(GoogleTest)
 gtest_discover_tests(engine_tests DISCOVERY_MODE PRE_TEST)
+
+# For AOS vs SOA experiment
+add_executable(aos_soa_bench Benchmarks/AosSoaBenchmark.cpp)
+

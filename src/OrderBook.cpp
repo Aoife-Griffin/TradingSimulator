@@ -29,7 +29,10 @@ namespace Trading {
     void OrderBook::addOrder(const Order& order) {
         auto& levels = (order.side == Side::BUY) ? m_bids : m_asks;
         auto it = findOrInsertLevel(levels, order.price, order.side == Side::BUY);
-        it->orders.push_back(order); 
+
+        /// Changed to use OrderPool for memory management
+        int poolIdx = m_pool.allocate(order);
+        it->orderPoolIndices.push_back(poolIdx); 
         it->totalVolume += order.quantity;
     }
 
@@ -37,14 +40,23 @@ namespace Trading {
     void OrderBook::cancelOrder(OrderId id, Side side) {
         auto& levels = (side == Side::BUY) ? m_bids : m_asks;
         for (auto lvlIt = levels.begin(); lvlIt != levels.end(); ++lvlIt) {
-            auto& queue = lvlIt->orders;
-            auto matchIt = std::find_if(queue.begin(), queue.end(), [id](const Order& o) { return o.id == id; });
+            auto& indexQueue = lvlIt->orderPoolIndices;
             
-            /// Adjust volume if deleted and delete if empty
-            if (matchIt != queue.end()) {
-                lvlIt->totalVolume -= matchIt->quantity;
-                queue.erase(matchIt);
-                if (queue.empty()) {
+            auto matchIt = std::find_if(indexQueue.begin(), indexQueue.end(), [&](int poolIdx) { 
+                return m_pool.get(poolIdx).id == id; 
+            });
+
+
+            /// Adjust volume if deleted and delete if empty -  Changed to use OrderPool for memory management
+            if (matchIt != indexQueue.end()) {
+                int poolIdxToFree = *matchIt;
+                lvlIt->totalVolume -= m_pool.get(poolIdxToFree).quantity;
+
+                /// Deallocate the order from the pool and remove it from the queue
+                m_pool.deallocate(poolIdxToFree);
+                indexQueue.erase(matchIt);
+                
+                if (indexQueue.empty()) {
                     levels.erase(lvlIt);
                 }
                 return;

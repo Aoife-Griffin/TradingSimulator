@@ -3,6 +3,7 @@
 #include "RiskManager.hpp"
 #include "OrderBook.hpp"
 #include "Benchmark.hpp"
+#include <windows.h>
 #include <thread>
 #include <atomic>
 #include <iostream>
@@ -115,6 +116,25 @@ int main() {
     std::thread thread3(matchingEngineConsumer);
     std::thread thread2(riskEngineConsumer);
     std::thread thread1(marketDataProducer);
+
+
+    /// Pin each thread to a specific core for performance isolation and cache locality
+    /// core: Market Feed Generator
+    DWORD_PTR mask1 = (1ULL << 0);
+    SetThreadAffinityMask(thread1.native_handle(), mask1);
+
+    /// Core: Risk Validation Engine
+    DWORD_PTR mask2 = (1ULL << 1);
+    SetThreadAffinityMask(thread2.native_handle(), mask2);
+
+    /// Core: Matching Core Execution Book
+    DWORD_PTR mask3 = (1ULL << 2);
+    SetThreadAffinityMask(thread3.native_handle(), mask3);
+
+    /// Core: Telemetry Processing Worker
+    DWORD_PTR mask4 = (1ULL << 3);
+    SetThreadAffinityMask(thread4.native_handle(), mask4);
+
 
     thread1.join();
     

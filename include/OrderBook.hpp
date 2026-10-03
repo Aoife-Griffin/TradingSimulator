@@ -1,5 +1,6 @@
 #pragma once
 #include "Order.hpp"
+#include "OrderPool.hpp"
 #include <vector>
 #include <optional>
 #include <algorithm>
@@ -10,7 +11,7 @@ namespace Trading {
     struct PriceLevel {
         Price price{0.0};
         Qty totalVolume{0};
-        std::vector<Order> orders; /// REPLACE LATER WITH CUSTOM POOL ALLOCATOR (heap collisions)
+        std::vector<int> orderPoolIndices; 
     };
 
     /// A collection of price levels for a given security
@@ -20,6 +21,9 @@ namespace Trading {
         /// The best bid and ask should go to the top for easy access
         std::vector<PriceLevel> m_bids; 
         std::vector<PriceLevel> m_asks; 
+
+        /// Pre-allocated pool for orders to avoid dynamic memory allocation during trading
+        OrderPool<200'000> m_pool; 
 
         /// Helper to find or insert a price level
         std::vector<PriceLevel>::iterator findOrInsertLevel(std::vector<PriceLevel>& levels, Price price, bool descending);

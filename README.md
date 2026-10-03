@@ -64,7 +64,7 @@ Every order must pass these four filters:
 * **Complex Multi-Bound Risk Guarding**: Incoming commands are filtered by the `RiskManager` against maximum size bounds, capital exposure caps, and net position velocity counts.
 * **Deterministic Environment Replays**: Sequential historical transaction files read  identical portfolio states due to a chronological clock tree.
 
-### 2. Live Simulator Controls
+## 2. Live Simulator Controls
 The system replicates realistic structural market dynamics:
 1. **Normal & Trend Scenarios**: Models geometric Brownian random price walks with drift trends (Bull/Bear biases).
 2. **Volatility Shocks & Flash Crashes**: Applies Poisson volume spikes to strip market depth layers and have protective risk rejections.
@@ -74,10 +74,28 @@ The system replicates realistic structural market dynamics:
 # Phase 4: Concurrecy & Performance Engineering
 Optimized the architecture into a 4-stage asynchronous trading pipeline, using an atomic lock-free ring buffer aligned to cache line boundaries (`alignas(64)`) to reduce false sharing. 
 
-### Production Performance Telemetry (20,000,000 Orders)
+## Production Performance Telemetry (20,000,000 Orders)
 * **Throughput:** ~929,637 orders/second
 * **Average Engine Latency:** 148.9 nanoseconds
 * **p50 Latency:** 100.0 nanoseconds
 * **p95 Latency:** 100.0 nanoseconds
 * **p99 Latency:** 200.0 nanoseconds
 * **p99.9 Tail Latency:** 3.9 microseconds
+
+# Phase 5: Low-Level Code Optimization (Complete)
+
+## 1. Fixing Code Bottlenecks
+Instead of guessing how to make the code faster, Phase 5 focused on fixing real performance slowdowns found during testing:
+* **Faster Text Handling (Day 17):** The risk checking system used to create slow text copies using standard strings (`std::string`). We changed this to use `std::string_view`. This lets the program read text directly from memory without making slow copies.
+* **Pre-Allocated Memory (Day 18):** Creating and deleting orders on the fly makes the computer ask the Operating System for memory, which is very slow. We built a custom **Memory Pool** (`OrderPool`). Now, memory for 200,000 orders is set aside before the system starts, making order creation incredibly fast.
+* **Locking Threads to CPU Cores (Day 19):** By default, Windows moves tasks between different CPU cores. This slows things down because the CPU has to keep reload data. We used Windows commands to lock each of our 4 pipeline steps onto its own permanent CPU core. This keeps the data exactly where the CPU can reach it fastest.
+
+
+## 2. Memory Layout Experiment: Array of Structures (AoS) vs. Structure of Arrays (SoA)
+To see how memory layout changes speed, we wrote a test program (`Benchmarks/AosSoaBenchmark.cpp`). It calculates the total financial value of **5,000,000 orders** using two different approaches.
+
+### Test Results:
+* **Approach 1 - AoS (Mixed Data Layout):** `21,538 us`
+* **Approach 2 - SoA (Separated Data Layout):** `9,630 us`
+* **Performance Difference:** **The SoA layout ran 2.24x faster than AoS.**
+

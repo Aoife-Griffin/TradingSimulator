@@ -31,20 +31,29 @@ namespace Trading {
         bool operator==(Value otherVal) const { return val == otherVal; }
     };
 
-    /// Convert RiskResult to string
-    inline std::string toString(RiskResult result) {
+    /// Convert RiskResult to string view. String view for removing copies and heap allocations
+    inline std::string_view toString(RiskResult result) {
         switch(result.val) {
-            case RiskResult::ACCEPTED: return "ACCEPTED";
-            case RiskResult::REJECTED_INVALID_ORDER_PRIMITIVES: return "REJECTED: Invalid order primitives";
-            case RiskResult::REJECTED_DUPLICATE_ID: return "REJECTED: Duplicate ID";
-            case RiskResult::REJECTED_MAX_SIZE: return "REJECTED: Order size exceeds maximum size";
-            case RiskResult::REJECTED_MAX_POSITION: return "REJECTED: Order target violates asset share inventory limits";
-            case RiskResult::REJECTED_MAX_EXPOSURE: return "REJECTED: Capital exposure constraint hit";
-            case RiskResult::REJECTED_DAILY_LOSS_LIMIT: return "REJECTED: Daily drawdown boundary breached";
-            case RiskResult::REJECTED_RATE_LIMIT: return "REJECTED: Message high frequency speed rate limit triggered";
+            case RiskResult::ACCEPTED: 
+                return "ACCEPTED";
+            case RiskResult::REJECTED_INVALID_ORDER_PRIMITIVES: 
+                return "REJECTED: Invalid order primitives";
+            case RiskResult::REJECTED_DUPLICATE_ID: 
+                return "REJECTED: Duplicate ID";
+            case RiskResult::REJECTED_MAX_SIZE: 
+                return "REJECTED: Order size exceeds maximum size";
+            case RiskResult::REJECTED_MAX_POSITION: 
+                return "REJECTED: Order target violates asset share inventory limits";
+            case RiskResult::REJECTED_MAX_EXPOSURE: 
+                return "REJECTED: Capital exposure constraint hit";
+            case RiskResult::REJECTED_DAILY_LOSS_LIMIT: 
+                return "REJECTED: Daily drawdown boundary breached";
+            case RiskResult::REJECTED_RATE_LIMIT: 
+                return "REJECTED: Message high frequency speed rate limit triggered";
         }
         return "UNKNOWN";
     }
+
 
     /// Risk limits for the trading engine
     struct RiskLimits {
