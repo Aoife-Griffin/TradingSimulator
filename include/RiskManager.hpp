@@ -63,7 +63,7 @@ namespace Trading {
     public:
         RiskResult validateOrder(const Order& order, int32_t currentAssetPosition = 0) {
             /// Basic structural sanity filter checks
-            if (!order.isValid()) {
+            if (order.price <= 0 || order.quantity <= 0) {
                 return RiskResult::REJECTED_INVALID_ORDER_PRIMITIVES;
             }
 
@@ -86,15 +86,15 @@ namespace Trading {
             }
 
             /// Check to make sure we don't exceed our notional exposure limit
-            double orderNotionalValue = order.quantity * order.price;
+             double orderNotionalValue = order.quantity * order.price;
             if (orderNotionalValue > m_limits.maxNotionalExposure) {
                 return RiskResult::REJECTED_MAX_EXPOSURE;
             }
-
             /// Track the order ID for uniqueness
             m_trackedOrderIds.insert(order.id);
             return RiskResult::ACCEPTED;
-        } 
+            } 
+
 
         void clearRegistry() {
             m_trackedOrderIds.clear();

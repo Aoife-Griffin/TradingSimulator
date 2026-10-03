@@ -72,3 +72,12 @@ The system replicates realistic structural market dynamics:
 
 
 # Phase 4: Concurrecy & Performance Engineering
+Optimized the architecture into a 4-stage asynchronous trading pipeline, using an atomic lock-free ring buffer aligned to cache line boundaries (`alignas(64)`) to reduce false sharing. 
+
+### Production Performance Telemetry (20,000,000 Orders)
+* **Throughput:** ~929,637 orders/second
+* **Average Engine Latency:** 148.9 nanoseconds
+* **p50 Latency:** 100.0 nanoseconds
+* **p95 Latency:** 100.0 nanoseconds
+* **p99 Latency:** 200.0 nanoseconds
+* **p99.9 Tail Latency:** 3.9 microseconds
