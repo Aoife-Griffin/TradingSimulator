@@ -24,8 +24,7 @@ jobs:
     ### Code Style Verification
     - name: Verify Code Style Formatting Rules
       run: |
-        # Ensure all core source files match professional standard structures
-        find src/ include/ tests/ Benchmarks/ -name "*.cpp" -o -name "*.hpp" | xargs clang-format --dry-run --Werror
+        find src/ include/ tests/ benchmarks/ -name "*.cpp" -o -name "*.hpp" | xargs clang-format --dry-run --Werror
 
     ### Configure C++20 Build Environment
     - name: Configure CMake Build Target Tree
