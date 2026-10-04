@@ -22,9 +22,26 @@ jobs:
         sudo apt-get install -y build-essential cmake clang-format clang-tidy
 
     ### Code Style Verification
+        # 3. Code Style Verification using official GitHub Action
     - name: Verify Code Style Formatting Rules
       run: |
-        find src/ include/ tests/ benchmarks/ -name "*.cpp" -o -name "*.hpp" | xargs clang-format --dry-run --Werror
+        sudo apt-get update
+        sudo apt-get install -y clang-format
+        
+        # Strip Windows carriage returns and format code files in place
+        find src/ include/ tests/ benchmarks/ -type f \( -name "*.cpp" -o -name "*.hpp" \) | while read -r file; do
+          sed -i 's/\r$//' "$file"
+          clang-format -i "$file"
+        done
+        
+        # Check if any structural changes were made by the formatting pass
+        if [ -n "$(git status --porcelain)" ]; then
+          echo "[FORMATTING ERROR] Some files do not match the required .clang-format style guidelines."
+          git diff
+          exit 1
+        else
+          echo "[SUCCESS] All codebase files pass style validation rules."
+        fi
 
     ### Configure C++20 Build Environment
     - name: Configure CMake Build Target Tree
