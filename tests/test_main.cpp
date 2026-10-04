@@ -15,8 +15,8 @@ TEST(OrderValidationTest, VerifiesExampleOrder) {
         .id = 1001,
         .timestamp = 1711843200000000000ULL,
         .price = 50.25,
-        .quantity = 100, 
-        .side = Side::BUY, 
+        .quantity = 100,
+        .side = Side::BUY,
         .type = OrderType::LIMIT
     };
 
@@ -33,7 +33,7 @@ TEST(OrderValidationTest, RejectsZeroOrNegativeQuantity) {
         .id = 1002,
         .timestamp = 100,
         .price = 50.25,
-        .quantity = 0, 
+        .quantity = 0,
         .side = Side::BUY,
         .type = OrderType::LIMIT
     };
@@ -47,7 +47,7 @@ TEST(OrderValidationTest, RejectsInvalidLimitPrices) {
     Order negativePriceOrder{
         .id = 1003,
         .timestamp = 100,
-        .price = -5.00, 
+        .price = -5.00,
         .quantity = 10,
         .side = Side::SELL,
         .type = OrderType::LIMIT
@@ -56,7 +56,7 @@ TEST(OrderValidationTest, RejectsInvalidLimitPrices) {
     Order zeroPriceLimitOrder{
         .id = 1004,
         .timestamp = 100,
-        .price = 0.0, 
+        .price = 0.0,
         .quantity = 10,
         .side = Side::BUY,
         .type = OrderType::LIMIT
@@ -75,9 +75,9 @@ TEST(OrderValidationTest, EnforcesUniqueOrderIDs) {
     Order duplicateOrder{.id = 999, .timestamp = 2, .price = 11.0, .quantity = 5, .side = Side::BUY, .type = OrderType::LIMIT};
     Order uniqueOrder{.id = 1000, .timestamp = 3, .price = 12.0, .quantity = 5, .side = Side::BUY, .type = OrderType::LIMIT};
 
-    EXPECT_TRUE(risk.validateOrder(firstOrder)); 
-    EXPECT_FALSE(risk.validateOrder(duplicateOrder)); 
-    EXPECT_TRUE(risk.validateOrder(uniqueOrder));     
+    EXPECT_TRUE(risk.validateOrder(firstOrder));
+    EXPECT_FALSE(risk.validateOrder(duplicateOrder));
+    EXPECT_TRUE(risk.validateOrder(uniqueOrder));
 }
 
 /// Checks that trades have the correct primitives and are valid
@@ -98,7 +98,7 @@ TEST(TradeValidationTest, ValidatesTradePrimitives) {
 TEST(SimulationPhaseTest, VerifiesScenarioGeneration) {
     MarketSimulator simulator;
     auto normalFeed = simulator.generateScenarioData(MarketScenario::NORMAL, 1, 50);
-    
+
     EXPECT_EQ(normalFeed.size(), 50);
     EXPECT_EQ(normalFeed.front().securityId, 1);
     EXPECT_GT(normalFeed.front().price, 0.0);
@@ -139,14 +139,14 @@ TEST(RiskManagerTests, EnforcesUniqueOrderIdentifiers) {
     RiskManager risk;
     Order firstOrder{.id = 999, .timestamp = 1, .price = 10.0, .quantity = 5, .side = Side::BUY, .type = OrderType::LIMIT};
     Order duplicateOrder{.id = 999, .timestamp = 2, .price = 11.0, .quantity = 5, .side = Side::BUY, .type = OrderType::LIMIT};
-    
+
     EXPECT_TRUE(risk.validateOrder(firstOrder));
-    EXPECT_FALSE(risk.validateOrder(duplicateOrder)); 
+    EXPECT_FALSE(risk.validateOrder(duplicateOrder));
 }
 
 /// Memory Pool Component Test
 TEST(OrderPoolTests, AllocatesAndRecyclesConstantSlots) {
-    OrderPool<10> pool; 
+    OrderPool<10> pool;
     Order testOrder{.id = 55, .price = 50.0, .quantity = 100};
 
     int idx1 = pool.allocate(testOrder);
@@ -171,7 +171,7 @@ TEST(OrderBookTests, EnforcesPriceTimePrioritySorting) {
     book.addOrder(midBid);
 
     auto bestBid = book.getBestBid();
-    EXPECT_FALSE(bestBid.has_value()); 
+    EXPECT_FALSE(bestBid.has_value());
 }
 
 /// Custom main() entry to force compilation on MSVC
