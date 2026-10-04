@@ -115,3 +115,24 @@ Turned the standalone matching engine into a realistic system that models networ
 * **p95 Latency:** 0.80 microseconds
 * **p99 Latency:** 1.10 microseconds
 * **p99.9 Tail Latency:** 4.20 microseconds
+
+
+# Phase 7: Dashboard, Testing & CI/CD Automation (Complete)
+
+Turned the project into a fully visible, production-tested, and automatically deployed enterprise-grade trading ecosystem.
+
+## 1. Frontend Workstation Dashboard
+* Built a modern, dark-themed user interface using **React and TypeScript** powered by Vite, inspired by tradingview's pages (https://www.tradingview.com/trading/)
+* Polled an asynchronous telemetry snapshot output stream cleanly out of the critical C++ processing paths to prevent engine stalling.
+* Uses **oxlint (Rust-based static linter)** to enforce high-performance frontend code quality without configuration clutter.
+* Visualizes real-time order book green/red depth ladders, active inventory share counts, running cash positions, throughput processing speeds (`ops/sec`), and sub-microsecond tail latency counters.
+
+## 2. Automated Quality Assurance
+* Expanded the automated **GoogleTest** suite to enforce critical execution invariants across memory management vectors.
+* Validates that the custom `OrderPool` Free List cleanly recycles elements in constant O(1) space, maintaining flat memory lines under extreme strain.
+* Verifies structural boundary shields across the `RiskManager` to block fat-finger execution mistakes and volume-breach limits safely.
+
+## 3. Continuous Integration Pipeline (DevOps)
+* Configured an automated **GitHub Actions Workflow** that triggers on every code check-in.
+* Enforces strict code formatting rules across all files via **`clang-format`**.
+* Automatically provisions Ubuntu cloud servers to build the core libraries, execute GoogleTest verification layers, and run memory-subsystem cache regressions (`aos_soa_bench`) to guarantee new commits never degrade our **1.1M orders/sec processing baseline**.

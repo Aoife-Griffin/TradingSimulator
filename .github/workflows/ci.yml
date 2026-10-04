@@ -1,0 +1,47 @@
+name: HFT Trading Simulator CI/CD Engine
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    name: Ubuntu Core Linux Compilation & Quality Suite
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository Source
+      uses: actions/checkout@v4
+
+    ### Get the build tools and linter utilities
+    - name: Install High-Performance Compilers & Linters
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake clang-format clang-tidy
+
+    ### Code Style Verification
+    - name: Verify Code Style Formatting Rules
+      run: |
+        # Ensure all core source files match professional standard structures
+        find src/ include/ tests/ Benchmarks/ -name "*.cpp" -o -name "*.hpp" | xargs clang-format --dry-run --Werror
+
+    ### Configure C++20 Build Environment
+    - name: Configure CMake Build Target Tree
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+
+    ### Compile the engine binary matrix
+    - name: Build Optimized Production Targets
+      run: cmake --build build --config Release
+
+    ### GoogleTest
+    - name: Run Automated Safety Verification Tests
+      run: |
+        cd build
+        ctest --output-on-failure
+
+    ### AoS vs SoA experiment
+    - name: Run Cache Efficiency Regression Benchmark
+      run: ./build/aos_soa_bench
