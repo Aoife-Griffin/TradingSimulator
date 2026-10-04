@@ -2,11 +2,11 @@
 #define BENCHMARK_HPP
 #pragma once
 
-#include <chrono>
-#include <vector>
-#include <iostream>
 #include <algorithm>
+#include <chrono>
+#include <iostream>
 #include <numeric>
+#include <vector>
 
 namespace Trading {
 
@@ -26,7 +26,7 @@ public:
     }
 
     /// Record the latency of a single operation in nanoseconds
-    void recordLatency(std::chrono::high_resolution_clock::time_point start, 
+    void recordLatency(std::chrono::high_resolution_clock::time_point start,
                        std::chrono::high_resolution_clock::time_point end) {
         auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
         m_latenciesNanos.push_back(duration);
@@ -52,7 +52,6 @@ public:
         uint64_t sum = std::accumulate(m_latenciesNanos.begin(), m_latenciesNanos.end(), 0ULL);
         double avg = static_cast<double>(sum) / m_latenciesNanos.size();
 
-        
         std::cout << "Throughput:      " << ops << " orders/sec\n";
         std::cout << "Average Latency: " << avg / 1000.0 << " us\n";
         std::cout << "p50 Latency:     " << getPercentile(0.50) / 1000.0 << " us\n";
@@ -62,5 +61,5 @@ public:
     }
 };
 
-} 
+}  // namespace Trading
 #endif

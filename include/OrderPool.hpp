@@ -1,20 +1,21 @@
 #ifndef ORDER_POOL_HPP
 #define ORDER_POOL_HPP
 #pragma once
-#include <iostream>
-#include "Order.hpp"
-#include <vector>
 #include <cassert>
+#include <iostream>
+#include <vector>
+
+#include "Order.hpp"
 
 namespace Trading {
 
-template<size_t PoolSize = 5000000>
+template <size_t PoolSize = 5000000>
 class OrderPool {
 public:
     /// A node in the pool that contains an order and a pointer to the next free node
     struct Node {
         Order order;
-        int next_free_idx{-1}; 
+        int next_free_idx{-1};
     };
 
 private:
@@ -28,7 +29,7 @@ public:
         for (size_t i = 0; i < PoolSize - 1; ++i) {
             m_pool[i].next_free_idx = static_cast<int>(i + 1);
         }
-        m_pool[PoolSize - 1].next_free_idx = -1; // End of list
+        m_pool[PoolSize - 1].next_free_idx = -1;  // End of list
     }
 
     /// Allocate a node from the pool in Linear time
@@ -40,13 +41,13 @@ public:
         }
 
         int allocated_idx = m_next_available_slot;
-        
+
         /// Move the next available slot to the next free node in the pool
         m_next_available_slot = m_pool[allocated_idx].next_free_idx;
 
         /// Fill the selected node with the order and detach it from the free list
         m_pool[allocated_idx].order = order;
-        m_pool[allocated_idx].next_free_idx = -1; 
+        m_pool[allocated_idx].next_free_idx = -1;
 
         return allocated_idx;
     }
@@ -58,9 +59,13 @@ public:
     }
 
     /// Accessors for the order at a given index
-    Order& get(int index) { return m_pool[index].order; }
-    const Order& get(int index) const { return m_pool[index].order; }
+    Order& get(int index) {
+        return m_pool[index].order;
+    }
+    const Order& get(int index) const {
+        return m_pool[index].order;
+    }
 };
 
-}
+}  // namespace Trading
 #endif

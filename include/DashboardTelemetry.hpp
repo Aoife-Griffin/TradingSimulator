@@ -2,9 +2,10 @@
 #define DASHBOARD_TELEMETRY_HPP
 #pragma once
 
-#include "Order.hpp"
 #include <string>
 #include <vector>
+
+#include "Order.hpp"
 
 namespace Trading {
 
@@ -18,7 +19,7 @@ struct DashboardSnapshot {
     double currentMarketPrice{100.0};
     double bestBid{0.0};
     double bestAsk{0.0};
-    
+
     /// Accounts Ledger
     double cashBalance{1000000.0};
     double realizedPnL{0.0};
@@ -34,5 +35,5 @@ struct DashboardSnapshot {
     std::vector<UiLevel> topAsks;
 };
 
-}
+}  // namespace Trading
 #endif

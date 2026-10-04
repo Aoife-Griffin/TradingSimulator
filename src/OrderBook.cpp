@@ -1,4 +1,5 @@
 #include "OrderBook.hpp"
+
 #include <algorithm>
 
 namespace Trading {
@@ -10,19 +11,17 @@ OrderBook::OrderBook(SecurityId securityId) : m_securityId(securityId) {
 }
 
 /// Find or insert a price level for the book
-std::vector<PriceLevel>::iterator OrderBook::findOrInsertLevel(
-    std::vector<PriceLevel>& levels, Price price, bool descending) {
-    auto it = std::find_if(levels.begin(), levels.end(),
-                           [price](const PriceLevel& lvl) { return lvl.price == price; });
+std::vector<PriceLevel>::iterator OrderBook::findOrInsertLevel(std::vector<PriceLevel>& levels, Price price,
+                                                               bool descending) {
+    auto it = std::find_if(levels.begin(), levels.end(), [price](const PriceLevel& lvl) { return lvl.price == price; });
 
     if (it != levels.end()) return it;
 
     PriceLevel newLevel = {.price = price};
-    auto insertPos = std::lower_bound(
-        levels.begin(), levels.end(), newLevel,
-        [descending](const PriceLevel& a, const PriceLevel& b) {
-            return descending ? (a.price > b.price) : (a.price < b.price);
-        });
+    auto insertPos = std::lower_bound(levels.begin(), levels.end(), newLevel,
+                                      [descending](const PriceLevel& a, const PriceLevel& b) {
+                                          return descending ? (a.price > b.price) : (a.price < b.price);
+                                      });
 
     return levels.insert(insertPos, newLevel);
 }
@@ -44,9 +43,7 @@ void OrderBook::addOrder(const Order& order) {
     /// Cleaning iterator
     if (it->orderPoolIndices.empty()) {
         auto erasePos = std::find_if(levels.begin(), levels.end(),
-                                     [order](const PriceLevel& lvl) {
-                                         return lvl.price == order.price;
-                                     });
+                                     [order](const PriceLevel& lvl) { return lvl.price == order.price; });
         if (erasePos != levels.end()) {
             levels.erase(erasePos);
         }
@@ -60,9 +57,7 @@ void OrderBook::cancelOrder(OrderId id, Side side) {
         auto& indexQueue = lvlIt->orderPoolIndices;
 
         auto matchIt = std::find_if(indexQueue.begin(), indexQueue.end(),
-                                    [&](int poolIdx) {
-                                        return m_pool.get(poolIdx).id == id;
-                                    });
+                                    [&](int poolIdx) { return m_pool.get(poolIdx).id == id; });
 
         /// Adjust volume if deleted and delete if empty
         if (matchIt != indexQueue.end()) {
@@ -95,13 +90,11 @@ void OrderBook::modifyOrder(OrderId id, Side side, Qty newQty, Price newPrice) {
 }
 
 std::optional<Price> OrderBook::getBestBid() const {
-    return m_bids.empty() ? std::nullopt
-                          : std::make_optional(m_bids.front().price);
+    return m_bids.empty() ? std::nullopt : std::make_optional(m_bids.front().price);
 }
 
 std::optional<Price> OrderBook::getBestAsk() const {
-    return m_asks.empty() ? std::nullopt
-                          : std::make_optional(m_asks.front().price);
+    return m_asks.empty() ? std::nullopt : std::make_optional(m_asks.front().price);
 }
 
 }  // namespace Trading

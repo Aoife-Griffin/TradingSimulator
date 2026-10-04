@@ -2,10 +2,10 @@
 #define PERSISTENCE_MANAGER_HPP
 #pragma once
 
-#include <string>
-#include <iostream>
-#include <fstream>
 #include <chrono>
+#include <fstream>
+#include <iostream>
+#include <string>
 
 namespace Trading {
 
@@ -40,23 +40,17 @@ public:
     void saveSimulationRun(size_t totalOrders, double throughput, double p50, double p95, double p99, double p999) {
         std::ofstream dbFile(m_dbPath, std::ios::app);
         if (dbFile.is_open()) {
-            ///Unique ID using timestamp hashing
+            /// Unique ID using timestamp hashing
             auto now = std::chrono::system_clock::now();
             auto simId = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count() % 100000;
 
             /// Insert data into simulation row
-            dbFile << "INSERT INTO simulations VALUES (" 
-                   << simId << ", datetime('now'), " 
-                   << totalOrders << ", " 
+            dbFile << "INSERT INTO simulations VALUES (" << simId << ", datetime('now'), " << totalOrders << ", "
                    << static_cast<uint64_t>(throughput) << ");\n";
 
             /// Insert telemetry data
-            dbFile << "INSERT INTO performance_metrics VALUES (" 
-                   << simId << ", " 
-                   << p50 << ", " 
-                   << p95 << ", " 
-                   << p99 << ", " 
-                   << p999 << ", 'SUCCESS');\n\n";
+            dbFile << "INSERT INTO performance_metrics VALUES (" << simId << ", " << p50 << ", " << p95 << ", " << p99
+                   << ", " << p999 << ", 'SUCCESS');\n\n";
 
             dbFile.close();
             std::cout << "[PERSISTENCE] Successfully saved simulation, orders, and portfolio metrics to database.\n";
@@ -66,5 +60,5 @@ public:
     }
 };
 
-}
+}  // namespace Trading
 #endif

@@ -2,9 +2,10 @@
 #define DASHBOARD_EXPORTER_HPP
 #pragma once
 
-#include "DashboardTelemetry.hpp"
 #include <fstream>
 #include <iostream>
+
+#include "DashboardTelemetry.hpp"
 
 namespace Trading {
 
@@ -23,8 +24,8 @@ public:
         file << "  \"throughput\": " << static_cast<uint64_t>(snap.throughputOpsSec) << ",\n";
         file << "  \"p50LatencyUs\": " << snap.avgLatencyUs << ",\n";
         file << "  \"p999LatencyUs\": " << snap.p999LatencyUs << ",\n";
-        
-        /// Export Bids 
+
+        /// Export Bids
         file << "  \"bids\": [\n";
         for (size_t i = 0; i < snap.topBids.size(); ++i) {
             file << "    {\"price\": " << snap.topBids[i].price << ", \"volume\": " << snap.topBids[i].volume << "}";
@@ -41,11 +42,11 @@ public:
             file << "\n";
         }
         file << "  ]\n";
-        
+
         file << "}\n";
         file.close();
     }
 };
 
-}
+}  // namespace Trading
 #endif

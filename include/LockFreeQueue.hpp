@@ -2,16 +2,17 @@
 #define LOCK_FREE_QUEUE_HPP
 
 #pragma once
-#include <vector>
 #include <atomic>
 #include <cassert>
+#include <vector>
 
 namespace Trading {
 
-template<typename T, size_t Capacity = 65536>
+template <typename T, size_t Capacity = 65536>
 class LockFreeQueue {
     /// Static capacity assertion to ensure it's a power of 2 for efficient masking
     static_assert((Capacity & (Capacity - 1)) == 0, "Capacity must be a power of 2 for fast masking.");
+
 private:
     std::vector<T> m_buffer;
 
@@ -23,7 +24,8 @@ private:
     static constexpr size_t Mask = Capacity - 1;
 
 public:
-    LockFreeQueue() : m_buffer(Capacity) {}
+    LockFreeQueue() : m_buffer(Capacity) {
+    }
 
     /// Put item in queue, returns false if the queue is full
     bool enqueue(const T& item) {
@@ -31,7 +33,7 @@ public:
         const size_t current_head = m_head.load(std::memory_order_acquire);
 
         if ((current_tail - current_head) >= Capacity) {
-            return false; 
+            return false;
         }
 
         /// Place the item in the buffer and update the tail
@@ -46,7 +48,7 @@ public:
         const size_t current_tail = m_tail.load(std::memory_order_acquire);
 
         if (current_head == current_tail) {
-            return false; 
+            return false;
         }
 
         item = m_buffer[current_head & Mask];
@@ -54,11 +56,11 @@ public:
         return true;
     }
 
-     bool empty() const {
+    bool empty() const {
         return m_head.load(std::memory_order_relaxed) == m_tail.load(std::memory_order_relaxed);
     }
 };
 
-} 
+}  // namespace Trading
 
-#endif 
+#endif

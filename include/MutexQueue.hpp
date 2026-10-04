@@ -1,12 +1,12 @@
 #pragma once
 
-#include <queue>
-#include <mutex>
 #include <condition_variable>
+#include <mutex>
+#include <queue>
 
 namespace Trading {
 
-template<typename T>
+template <typename T>
 class MutexQueue {
 private:
     std::queue<T> m_queue;
@@ -36,9 +36,7 @@ public:
     bool dequeue(T& item) {
         std::unique_lock<std::mutex> lock(m_mutex);
 
-        m_condition.wait(lock, [this] {
-            return !m_queue.empty() || m_shutdown;
-        });
+        m_condition.wait(lock, [this] { return !m_queue.empty() || m_shutdown; });
 
         /// If shutdown happens and queue is empty, false is returned -> no more items to process
         if (m_queue.empty()) {
@@ -76,4 +74,4 @@ public:
     }
 };
 
-}
+}  // namespace Trading

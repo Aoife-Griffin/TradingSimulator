@@ -1,3 +1,9 @@
+#include <windows.h>
+
+#include <atomic>
+#include <iostream>
+#include <thread>
+
 #include "Benchmark.hpp"
 #include "LockFreeQueue.hpp"
 #include "NetworkSimulator.hpp"
@@ -6,11 +12,6 @@
 #include "PersistenceManager.hpp"
 #include "RiskManager.hpp"
 #include "TraderStrategies.hpp"
-
-#include <windows.h>
-#include <atomic>
-#include <iostream>
-#include <thread>
 
 using namespace Trading;
 
@@ -72,10 +73,9 @@ void marketDataProducer() {
         }
 
         /// Timestamp is generated in nanoseconds for high-resolution latency
-        order.timestamp = static_cast<uint64_t>(
-            std::chrono::duration_cast<std::chrono::nanoseconds>(
-                std::chrono::high_resolution_clock::now().time_since_epoch())
-                .count());
+        order.timestamp = static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(
+                                                    std::chrono::high_resolution_clock::now().time_since_epoch())
+                                                    .count());
 
         if (network.transmitOrder(order)) {
             while (!marketToRiskQueue.enqueue(order)) {
@@ -180,10 +180,7 @@ int main() {
     thread4.join();
 
     auto end_time = std::chrono::high_resolution_clock::now();
-    double duration =
-        std::chrono::duration_cast<std::chrono::duration<double>>(end_time -
-                                                                  start_time)
-            .count();
+    double duration = std::chrono::duration_cast<std::chrono::duration<double>>(end_time - start_time).count();
 
     benchmarker.generateReport(duration, TARGET_ORDER_COUNT);
 
@@ -191,8 +188,7 @@ int main() {
     PersistenceManager dbManager("build/Release/trading_platform_audit.db");
 
     double finalThroughput = TARGET_ORDER_COUNT / duration;
-    dbManager.saveSimulationRun(TARGET_ORDER_COUNT, finalThroughput, 0.4, 0.8,
-                                1.1, 3.2);
+    dbManager.saveSimulationRun(TARGET_ORDER_COUNT, finalThroughput, 0.4, 0.8, 1.1, 3.2);
 
     return 0;
 }
