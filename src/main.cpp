@@ -1,4 +1,9 @@
+#ifdef _WIN32
 #include <windows.h>
+#elif __linux__
+#include <pthread.h>
+#include <sched.h>
+#endif
 
 #include <atomic>
 #include <iostream>
@@ -12,6 +17,17 @@
 #include "PersistenceManager.hpp"
 #include "RiskManager.hpp"
 #include "TraderStrategies.hpp"
+
+inline void setThreadAffinity(int cpuCore) {
+#ifdef _WIN32
+    SetThreadAffinityMask(GetCurrentThread(), (1ULL << cpuCore));
+#elif __linux__
+    cpu_set_t cpuset;
+    CPU_ZERO(&cpuset);
+    CPU_SET(cpuCore, &cpuset);
+    pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset);
+#endif
+}
 
 using namespace Trading;
 
@@ -35,7 +51,7 @@ PerformanceBenchmarker benchmarker;
 
 /// Simulating market data feed
 void marketDataProducer() {
-    SetThreadAffinityMask(GetCurrentThread(), (1ULL << 0));
+    setThreadAffinity(0);
 
     NetworkSimulator network;
     std::vector<Trader> virtualTraders;
@@ -92,7 +108,7 @@ void marketDataProducer() {
 
 /// Validates orders and forwards accepted ones
 void riskEngineConsumer() {
-    SetThreadAffinityMask(GetCurrentThread(), (1ULL << 1));
+    setThreadAffinity(1);
 
     RiskManager riskManager;
     Order order;
@@ -115,7 +131,7 @@ void riskEngineConsumer() {
 
 /// Process validated orders and record latency
 void matchingEngineConsumer() {
-    SetThreadAffinityMask(GetCurrentThread(), (1ULL << 2));
+    setThreadAffinity(2);
 
     OrderBook orderBook(1);
     Order order;
@@ -142,7 +158,7 @@ void matchingEngineConsumer() {
 
 /// Collects metrics and generates a performance report
 void metricsConsumer() {
-    SetThreadAffinityMask(GetCurrentThread(), (1ULL << 3));
+    setThreadAffinity(3);
 
     TimingPoint tp;
     while (engineRunning || !engineToMetricsQueue.empty()) {
