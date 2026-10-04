@@ -1,23 +1,23 @@
+#include <chrono>
+#include <iostream>
+#include <string>
+#include <thread>
+
 #include "LockFreeQueue.hpp"
 #include "MutexQueue.hpp"
 #include "Order.hpp"
-#include <chrono>
-#include <iostream>
-#include <thread>
-#include <string>
 
 using namespace Trading;
 
-constexpr size_t NUM_ORDERS = 5'000'000; 
+constexpr size_t NUM_ORDERS = 5'000'000;
 
-template<typename QueueType>
+template <typename QueueType>
 void benchmarkQueue(const std::string& queueName) {
     QueueType queue;
     std::atomic<bool> producerDone{false};
     size_t consumedOrders = 0;
-    
+
     if constexpr (std::is_same_v<QueueType, MutexQueue<Order>>) {
-        
     }
 
     auto start = std::chrono::steady_clock::now();
@@ -30,21 +30,21 @@ void benchmarkQueue(const std::string& queueName) {
             order.price = 100.0;
             order.quantity = 10;
             order.side = Side::BUY;
-            
+
             /// If using LockFreeQueue, yield until space is available; MutexQueue will block internally
             if constexpr (std::is_same_v<QueueType, LockFreeQueue<Order>>) {
                 while (!queue.enqueue(order)) {
                     std::this_thread::yield();
                 }
             } else {
-                queue.enqueue(order); 
+                queue.enqueue(order);
             }
         }
         producerDone.store(true, std::memory_order_release);
-        
+
         /// If using MutexQueue, shutdown to unblock
         if constexpr (std::is_same_v<QueueType, MutexQueue<Order>>) {
-            queue.shutdown(); 
+            queue.shutdown();
         }
     });
 
@@ -68,7 +68,6 @@ void benchmarkQueue(const std::string& queueName) {
     const auto elapsedUs = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
     const double seconds = elapsedUs / 1'000'000.0;
     const double throughput = NUM_ORDERS / seconds;
-
 
     std::cout << "  Total Time:  " << elapsedUs << " us (" << seconds << " s)\n";
     std::cout << "  Throughput:  " << throughput << " orders/sec";
