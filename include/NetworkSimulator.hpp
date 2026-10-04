@@ -20,8 +20,9 @@ private:
     std::uniform_real_distribution<double> m_probDist{0.0, 1.0};
 
     /// Network properties
-    double m_packetLossRate{0.001};  /// https://github.com/SteveMwika/Network-Simulation-Model-Exploring-Packet-Transmission/blob/main/proj2_Mwika_Steve.cpp
-                                     /// for help deciding 0.001
+    double m_packetLossRate{
+        0.001};  /// https://github.com/SteveMwika/Network-Simulation-Model-Exploring-Packet-Transmission/blob/main/proj2_Mwika_Steve.cpp
+                 /// for help deciding 0.001
     uint32_t m_baseLatencyNanos{15'000};
     uint32_t m_jitterNanos{5'000};
 
