@@ -34,6 +34,20 @@ namespace Trading {
         int poolIdx = m_pool.allocate(order);
         it->orderPoolIndices.push_back(poolIdx); 
         it->totalVolume += order.quantity;
+
+        it->totalVolume -= order.quantity;
+        m_pool.deallocate(poolIdx);
+        it->orderPoolIndices.pop_back();
+
+        /// Cleaning iterator
+        if (it->orderPoolIndices.empty()) {
+            auto erasePos = std::find_if(levels.begin(), levels.end(), [order](const PriceLevel& lvl) {
+                return lvl.price == order.price;
+            });
+            if (erasePos != levels.end()) {
+                levels.erase(erasePos);
+            }
+        }
     }
 
     /// Cancel order

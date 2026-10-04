@@ -8,7 +8,7 @@
 
 namespace Trading {
 
-template<size_t PoolSize = 100'000>
+template<size_t PoolSize = 5000000>
 class OrderPool {
 public:
     /// A node in the pool that contains an order and a pointer to the next free node

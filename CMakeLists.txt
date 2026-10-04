@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include_directories(include)
 
 # 2. Add your main core application targets
-add_library(trading_engine src/Engine.cpp src/OrderBook.cpp)
+add_library(trading_engine src/Engine.cpp src/OrderBook.cpp )
 add_executable(trading_sim src/main.cpp)
 target_link_libraries(trading_sim PRIVATE trading_engine)
 

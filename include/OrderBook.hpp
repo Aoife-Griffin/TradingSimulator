@@ -23,7 +23,7 @@ namespace Trading {
         std::vector<PriceLevel> m_asks; 
 
         /// Pre-allocated pool for orders to avoid dynamic memory allocation during trading
-        OrderPool<200'000> m_pool; 
+        OrderPool<1000000> m_pool; 
 
         /// Helper to find or insert a price level
         std::vector<PriceLevel>::iterator findOrInsertLevel(std::vector<PriceLevel>& levels, Price price, bool descending);
