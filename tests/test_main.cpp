@@ -1,24 +1,22 @@
 #include <gtest/gtest.h>
-#include "Types.hpp"
-#include "Order.hpp"
-#include "RiskManager.hpp"
 #include "MarketSimulator.hpp"
-#include "ReplayEngine.hpp"
+#include "Order.hpp"
 #include "OrderBook.hpp"
 #include "OrderPool.hpp"
+#include "ReplayEngine.hpp"
+#include "RiskManager.hpp"
+#include "Types.hpp"
 
 using namespace Trading;
 
 /// Test for making sure the order validation is working
 TEST(OrderValidationTest, VerifiesExampleOrder) {
-    Order order{
-        .id = 1001,
-        .timestamp = 1711843200000000000ULL,
-        .price = 50.25,
-        .quantity = 100,
-        .side = Side::BUY,
-        .type = OrderType::LIMIT
-    };
+    Order order = {.id = 1001,
+                   .timestamp = 1711843200000000000ULL,
+                   .price = 50.25,
+                   .quantity = 100,
+                   .side = Side::BUY,
+                   .type = OrderType::LIMIT};
 
     RiskManager risk;
     EXPECT_TRUE(risk.validateOrder(order));
@@ -29,14 +27,12 @@ TEST(OrderValidationTest, VerifiesExampleOrder) {
 
 /// Testing for rejection of orders with 0 or negatives
 TEST(OrderValidationTest, RejectsZeroOrNegativeQuantity) {
-    Order invalidQtyOrder{
-        .id = 1002,
-        .timestamp = 100,
-        .price = 50.25,
-        .quantity = 0,
-        .side = Side::BUY,
-        .type = OrderType::LIMIT
-    };
+    Order invalidQtyOrder = {.id = 1002,
+                             .timestamp = 100,
+                             .price = 50.25,
+                             .quantity = 0,
+                             .side = Side::BUY,
+                             .type = OrderType::LIMIT};
 
     RiskManager risk;
     EXPECT_FALSE(risk.validateOrder(invalidQtyOrder));
@@ -44,23 +40,19 @@ TEST(OrderValidationTest, RejectsZeroOrNegativeQuantity) {
 
 /// Checks limit and market orders against invalid prices
 TEST(OrderValidationTest, RejectsInvalidLimitPrices) {
-    Order negativePriceOrder{
-        .id = 1003,
-        .timestamp = 100,
-        .price = -5.00,
-        .quantity = 10,
-        .side = Side::SELL,
-        .type = OrderType::LIMIT
-    };
+    Order negativePriceOrder = {.id = 1003,
+                                .timestamp = 100,
+                                .price = -5.00,
+                                .quantity = 10,
+                                .side = Side::SELL,
+                                .type = OrderType::LIMIT};
 
-    Order zeroPriceLimitOrder{
-        .id = 1004,
-        .timestamp = 100,
-        .price = 0.0,
-        .quantity = 10,
-        .side = Side::BUY,
-        .type = OrderType::LIMIT
-    };
+    Order zeroPriceLimitOrder = {.id = 1004,
+                                 .timestamp = 100,
+                                 .price = 0.0,
+                                 .quantity = 10,
+                                 .side = Side::BUY,
+                                 .type = OrderType::LIMIT};
 
     RiskManager risk;
     EXPECT_FALSE(risk.validateOrder(negativePriceOrder));
@@ -71,9 +63,24 @@ TEST(OrderValidationTest, RejectsInvalidLimitPrices) {
 TEST(OrderValidationTest, EnforcesUniqueOrderIDs) {
     RiskManager risk;
 
-    Order firstOrder{.id = 999, .timestamp = 1, .price = 10.0, .quantity = 5, .side = Side::BUY, .type = OrderType::LIMIT};
-    Order duplicateOrder{.id = 999, .timestamp = 2, .price = 11.0, .quantity = 5, .side = Side::BUY, .type = OrderType::LIMIT};
-    Order uniqueOrder{.id = 1000, .timestamp = 3, .price = 12.0, .quantity = 5, .side = Side::BUY, .type = OrderType::LIMIT};
+    Order firstOrder = {.id = 999,
+                        .timestamp = 1,
+                        .price = 10.0,
+                        .quantity = 5,
+                        .side = Side::BUY,
+                        .type = OrderType::LIMIT};
+    Order duplicateOrder = {.id = 999,
+                            .timestamp = 2,
+                            .price = 11.0,
+                            .quantity = 5,
+                            .side = Side::BUY,
+                            .type = OrderType::LIMIT};
+    Order uniqueOrder = {.id = 1000,
+                         .timestamp = 3,
+                         .price = 12.0,
+                         .quantity = 5,
+                         .side = Side::BUY,
+                         .type = OrderType::LIMIT};
 
     EXPECT_TRUE(risk.validateOrder(firstOrder));
     EXPECT_FALSE(risk.validateOrder(duplicateOrder));
@@ -82,14 +89,12 @@ TEST(OrderValidationTest, EnforcesUniqueOrderIDs) {
 
 /// Checks that trades have the correct primitives and are valid
 TEST(TradeValidationTest, ValidatesTradePrimitives) {
-    Trade trade{
-        .tradeId = 1,
-        .buyOrderId = 1001,
-        .sellOrderId = 1002,
-        .timestamp = 12345,
-        .executionPrice = 50.25,
-        .executionQuantity = 100
-    };
+    Trade trade = {.tradeId = 1,
+                   .buyOrderId = 1001,
+                   .sellOrderId = 1002,
+                   .timestamp = 12345,
+                   .executionPrice = 50.25,
+                   .executionQuantity = 100};
 
     EXPECT_TRUE(trade.isValid());
 }
@@ -126,9 +131,24 @@ TEST(SimulationPhaseTest, EnforcesDeterministicReplays) {
 TEST(RiskManagerTests, InterceptsValidAndInvalidPrimitives) {
     RiskManager risk;
 
-    Order validOrder{.id = 1, .timestamp = 100, .price = 100.50, .quantity = 50, .side = Side::BUY, .type = OrderType::LIMIT};
-    Order invalidQtyOrder{.id = 2, .timestamp = 100, .price = 100.50, .quantity = 0, .side = Side::BUY, .type = OrderType::LIMIT};
-    Order negativePriceOrder{.id = 3, .timestamp = 100, .price = -5.00, .quantity = 10, .side = Side::SELL, .type = OrderType::LIMIT};
+    Order validOrder = {.id = 1,
+                        .timestamp = 100,
+                        .price = 100.50,
+                        .quantity = 50,
+                        .side = Side::BUY,
+                        .type = OrderType::LIMIT};
+    Order invalidQtyOrder = {.id = 2,
+                             .timestamp = 100,
+                             .price = 100.50,
+                             .quantity = 0,
+                             .side = Side::BUY,
+                             .type = OrderType::LIMIT};
+    Order negativePriceOrder = {.id = 3,
+                                .timestamp = 100,
+                                .price = -5.00,
+                                .quantity = 10,
+                                .side = Side::SELL,
+                                .type = OrderType::LIMIT};
 
     EXPECT_TRUE(risk.validateOrder(validOrder));
     EXPECT_FALSE(risk.validateOrder(invalidQtyOrder));
@@ -137,8 +157,18 @@ TEST(RiskManagerTests, InterceptsValidAndInvalidPrimitives) {
 
 TEST(RiskManagerTests, EnforcesUniqueOrderIdentifiers) {
     RiskManager risk;
-    Order firstOrder{.id = 999, .timestamp = 1, .price = 10.0, .quantity = 5, .side = Side::BUY, .type = OrderType::LIMIT};
-    Order duplicateOrder{.id = 999, .timestamp = 2, .price = 11.0, .quantity = 5, .side = Side::BUY, .type = OrderType::LIMIT};
+    Order firstOrder = {.id = 999,
+                        .timestamp = 1,
+                        .price = 10.0,
+                        .quantity = 5,
+                        .side = Side::BUY,
+                        .type = OrderType::LIMIT};
+    Order duplicateOrder = {.id = 999,
+                            .timestamp = 2,
+                            .price = 11.0,
+                            .quantity = 5,
+                            .side = Side::BUY,
+                            .type = OrderType::LIMIT};
 
     EXPECT_TRUE(risk.validateOrder(firstOrder));
     EXPECT_FALSE(risk.validateOrder(duplicateOrder));
@@ -147,7 +177,7 @@ TEST(RiskManagerTests, EnforcesUniqueOrderIdentifiers) {
 /// Memory Pool Component Test
 TEST(OrderPoolTests, AllocatesAndRecyclesConstantSlots) {
     OrderPool<10> pool;
-    Order testOrder{.id = 55, .price = 50.0, .quantity = 100};
+    Order testOrder = {.id = 55, .price = 50.0, .quantity = 100};
 
     int idx1 = pool.allocate(testOrder);
     EXPECT_GE(idx1, 0);
@@ -162,9 +192,9 @@ TEST(OrderPoolTests, AllocatesAndRecyclesConstantSlots) {
 /// Converted Order book pricing invariant test
 TEST(OrderBookTests, EnforcesPriceTimePrioritySorting) {
     OrderBook book(1);
-    Order lowBid{.id = 1, .price = 99.00, .quantity = 100, .side = Side::BUY, .type = OrderType::LIMIT};
-    Order highBid{.id = 2, .price = 101.50, .quantity = 100, .side = Side::BUY, .type = OrderType::LIMIT};
-    Order midBid{.id = 3, .price = 100.00, .quantity = 100, .side = Side::BUY, .type = OrderType::LIMIT};
+    Order lowBid = {.id = 1, .price = 99.00, .quantity = 100, .side = Side::BUY, .type = OrderType::LIMIT};
+    Order highBid = {.id = 2, .price = 101.50, .quantity = 100, .side = Side::BUY, .type = OrderType::LIMIT};
+    Order midBid = {.id = 3, .price = 100.00, .quantity = 100, .side = Side::BUY, .type = OrderType::LIMIT};
 
     book.addOrder(lowBid);
     book.addOrder(highBid);
