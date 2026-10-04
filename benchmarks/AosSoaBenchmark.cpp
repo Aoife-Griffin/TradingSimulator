@@ -1,15 +1,14 @@
 #include <chrono>
-#include <vector>
 #include <iostream>
 #include <numeric>
 #include <string>
+#include <vector>
 
 using Price = double;
 using Qty = uint32_t;
 using OrderId = uint64_t;
 
-constexpr size_t TEST_SIZE = 5'000'000; // 5 Million orders for deep cache saturation
-
+constexpr size_t TEST_SIZE = 5'000'000;  // 5 Million orders for deep cache saturation
 
 ///     ARRAY OF STRUCTURES
 struct AoS_Order {
@@ -65,8 +64,8 @@ int main() {
     /// Test 1: Benchmark AoS Market Value Scan
     auto start_aos = std::chrono::high_resolution_clock::now();
     double aos_total_value = 0.0;
-    
-    /// Causes cache misses to see the performance 
+
+    /// Causes cache misses to see the performance
     for (size_t i = 0; i < TEST_SIZE; ++i) {
         aos_total_value += aos_book[i].price * aos_book[i].quantity;
     }
@@ -78,19 +77,19 @@ int main() {
     /// Test 2: Benchmark SoA Market Value Scan
     auto start_soa = std::chrono::high_resolution_clock::now();
     double soa_total_value = 0.0;
-    
-    /// Causes cache misses to see the performance 
+
+    /// Causes cache misses to see the performance
     for (size_t i = 0; i < TEST_SIZE; ++i) {
         soa_total_value += soa_book.prices[i] * soa_book.quantities[i];
     }
-    
+
     auto end_soa = std::chrono::high_resolution_clock::now();
     auto elapsed_soa = std::chrono::duration_cast<std::chrono::microseconds>(end_soa - start_soa).count();
 
     /// Prints out results for comparison
     std::cout << "AoS Execution Time: " << elapsed_aos << " us\n";
     std::cout << "SoA Execution Time: " << elapsed_soa << " us\n";
-    
+
     /// Calculate speedup factor for SoA over AoS
     double speedup = static_cast<double>(elapsed_aos) / elapsed_soa;
     std::cout << "Hardware Performance Delta: SoA is " << speedup << "x faster than AoS\n";
