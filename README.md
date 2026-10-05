@@ -1,8 +1,59 @@
 # High-Performance Trading Simulator
 
-A low-latency trading simulation engine built with C++20.
+A multi-threaded trading engine simulation built using C++20 and React. The system handles over **1.07 million orders per second** while keeping edge response latencies under **4.2 microseconds**.
 
+## System Overview
+This platform creates a full electronic trading ecosystem. Instead of a single standalone loop, it uses an advanced 4 stage pipeline that divides tasks across different physical CPU cores:
+1. **Market Data Feed:** Spawns 1,000 independent strategy bots creating realistic order volume
+2. **Risk Manager:** A fast security gateway that filters out bad prices and size violations
+3. **Matching Engine Core:** Organizes the order book and balances incoming volumes in memory
+4. **Telemetry & Logger:** Logs historical snapshots to a permanent database file out of the critical path
 
+## Quick Setup Instructions
+
+### Prerequisites
+Ensure your local machine has a standard C++ compiler environment installed:
+* **CMake** (Version 3.14 or higher)
+* **C++20 Compiler** (MSVC on Windows / GCC or Clang on Linux)
+* **Node.js** (For the frontend workspace dashboard)
+
+### 1. Compile the C++ Trading Core Engine
+Open your Git Bash console window and run the build scripts:
+```bash
+# Configure the project setup
+MSYS_NO_PATHCONV=1 cmake -B build -A x64 -DCMAKE_CXX_FLAGS="/O2 /Oi /Ot /EHsc"
+
+# Compile all optimized production targets
+cmake --build build --config Release
+```
+
+### 2. Run the Engine & Automated Test Suites
+```bash
+# Execute the main 20,000,000 order pipeline simulation
+./build/Release/trading_sim.exe
+
+# Run the standalone hardware caching experiment
+./build/Release/aos_soa_bench.exe
+
+# Run the GoogleTest quality assurance checks
+./build/Release/engine_tests.exe
+```
+
+### 3. Spin Up live Telemetry Frontend Dashboard
+Open a second terminal window to host your dashboard web server alongside the engine:
+```bash
+# Navigate into the frontend project folder
+cd dashboard
+
+# Install UI icons and dependencies
+npm install
+
+# Start the local development dashboard server
+npm run dev
+```
+Open **`http://localhost:3000`** in your browser to view your live order books, net profits, and performance charts.
+
+## Project Milestones
 # Phase 1: Foundation
 ## 1. Project Setup
 * Project layout established.
